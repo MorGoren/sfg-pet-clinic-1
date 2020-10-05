@@ -8,11 +8,12 @@ import guru.springframework.sfgpetclinic.services.PetTypeService;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Set;
 
 @Service
 @Profile({"default", "map"})
-public class OwnerMapService extends AbstactMapService<Owner, Long> implements OwnerService{
+public class OwnerMapService extends AbstactMapService<Owner, Long> implements OwnerService {
 
     private final PetTypeService petTypeService;
     private final PetService petService;
@@ -40,16 +41,16 @@ public class OwnerMapService extends AbstactMapService<Owner, Long> implements O
     @Override
     public Owner save(Owner object) {
         Owner saveOwner = null;
-        if(object != null){
-            if(object.getPets() != null){
-                object.getPets().forEach(pet ->{
+        if (object != null) {
+            if (object.getPets() != null) {
+                object.getPets().forEach(pet -> {
                     if (pet.getPetType().getId() != null) {
                         pet.setPetType(petTypeService.save(pet.getPetType()));
-                    }else{
+                    } else {
                         throw new RuntimeException("Pet Type is required");
                     }
 
-                    if(pet.getId() == null){
+                    if (pet.getId() == null) {
                         Pet savedPet = petService.save(pet);
                         pet.setId(savedPet.getId());
                     }
@@ -57,7 +58,7 @@ public class OwnerMapService extends AbstactMapService<Owner, Long> implements O
             }
             return super.save(object);
         }
-       return null;
+        return null;
     }
 
     @Override
@@ -67,6 +68,11 @@ public class OwnerMapService extends AbstactMapService<Owner, Long> implements O
 
     @Override
     public Owner findByLastName(String lastName) {
-        return null;
+        return this.findAll()
+                .stream()
+                .filter(Objects::nonNull)
+                .filter(owner -> owner.getLastName() == "Smith")
+                .findFirst()
+                .orElse(null);
     }
 }
